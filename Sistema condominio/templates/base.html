@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CondoTrade</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #007bff !important;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .btn-primary, .btn-create-ad, .btn-create-service, .btn-create-lost-found {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: #fff;
+        }
+        .btn-primary:hover, .btn-create-ad:hover, .btn-create-service:hover, .btn-create-lost-found:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        .form-control {
+            border-radius: 5px;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+        }
+        .badge {
+            padding: 0.5em 0.75em;
+            font-size: 0.9em;
+        }
+        @media (max-width: 768px) {
+            .navbar-toggler {
+                border: none;
+            }
+            .navbar-toggler:focus {
+                outline: none;
+                box-shadow: none;
+            }
+            .navbar-nav {
+                text-align: center;
+            }
+            .navbar-nav .nav-item {
+                margin: 0.5em 0;
+            }
+        }
+    </style>
+    {% block styles %}{% endblock %}
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{{ url_for('index', condo_id=current_user.condo_id) }}">CondoTrade</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('index', condo_id=current_user.condo_id) }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('lost_and_found') }}">Achados e Perdidos</a>
+                </li>
+                {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('my_ads') }}">Meus Anúncios</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('chats') }}">Meus Chats</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                </li>
+                {% if current_user.id == current_user.condo.manager_id %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('syndic_panel') }}">Painel Síndico</a>
+                </li>
+                {% endif %}
+                {% if current_user.username == 'admin' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admin') }}">Painel Admin</a>
+                </li>
+                {% endif %}
+                {% endif %}
+            </ul>
+            {% if current_user.is_authenticated %}
+            <a class="btn btn-create-ad mr-2" href="{{ url_for('create_ad', condo_id=current_user.condo_id) }}">Criar Anúncio</a>
+            <a class="btn btn-create-service mr-2" href="{{ url_for('create_service', condo_id=current_user.condo_id) }}">Criar Serviço</a>
+            {% if current_user.id == current_user.condo.manager_id %}
+            <a class="btn btn-create-lost-found" href="{{ url_for('create_lost_and_found', condo_id=current_user.condo_id) }}">Adicionar Achados e Perdidos</a>
+            {% endif %}
+            {% endif %}
+        </div>
+    </nav>
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ messages[0] }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

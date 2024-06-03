@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Chat</h2>
+    <div id="messages" class="chat-window mb-4">
+        {% for message in messages %}
+        <div class="chat-message {% if message.sender_id == current_user.id %}chat-message-right{% else %}chat-message-left{% endif %}">
+            <div class="chat-message-content">
+                <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <form id="message-form" method="POST" class="d-flex">
+        {{ form.hidden_tag() }}
+        <textarea class="form-control" rows="3" id="message" placeholder="Digite sua mensagem..."></textarea>
+        <button type="submit" class="btn btn-primary ml-2">Enviar</button>
+    </form>
+</div>
+
+<style>
+    .chat-window {
+        max-height: 500px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+    .chat-message {
+        margin-bottom: 10px;
+    }
+    .chat-message-left {
+        text-align: left;
+    }
+    .chat-message-right {
+        text-align: right;
+    }
+    .chat-message-content {
+        display: inline-block;
+        padding: 10px;
+        border-radius: 10px;
+        background-color: #e2e3e5;
+        max-width: 70%;
+    }
+    .chat-message-right .chat-message-content {
+        background-color: #007bff;
+        color: white;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const socket = io();
+    const room = {{ conversation.id }};
+    const username = "{{ current_user.username }}";
+
+    // Join the room when the user enters the chat page
+    socket.emit('join', { room: room, username: username });
+
+    socket.on('receive_message', function(data) {
+        if (data.room === room) {
+            const messagesDiv = document.getElementById('messages');
+            const newMessageDiv = document.createElement('div');
+            newMessageDiv.classList.add('chat-message');
+            if (data.username === username) {
+                newMessageDiv.classList.add('chat-message-right');
+            } else {
+                newMessageDiv.classList.add('chat-message-left');
+            }
+            newMessageDiv.innerHTML = `<div class="chat-message-content"><strong>${data.username}:</strong> ${data.message}</div>`;
+            messagesDiv.appendChild(newMessageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    });
+
+    const form = document.getElementById('message-form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const messageInput = document.getElementById('message');
+        const message = messageInput.value.trim();
+        if (message) {
+            socket.emit('send_message', {
+                room: room,
+                username: username,
+                message: message
+            });
+            messageInput.value = '';
+        }
+    });
+
+    window.addEventListener('beforeunload', function() {
+        socket.emit('leave', { room: room, username: username });
+    });
+
+    window.addEventListener('unload', function() {
+        socket.emit('leave', { room: room, username: username });
+    });
+});
+</script>
+{% endblock %}
