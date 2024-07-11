@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Achados e Perdidos</h1>
+    <div class="row">
+        {% for item in items %}
+        <div class="col-md-4 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ url_for('static', filename='uploads/' ~ item.photo) }}" class="card-img-top" alt="Item image">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.item_name }}</h5>
+                    <p class="card-text">{{ item.description[:100] }}...</p>
+                    <p class="card-text"><strong>Encontrado em:</strong> {{ item.found_date.strftime('%d/%m/%Y') }}</p>
+                    <p class="card-text"><strong>Expira em:</strong> {{ item.expires_at.strftime('%d/%m/%Y') }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% if current_user.id == current_user.condo.manager_id %}
+    <div class="text-center">
+        <a href="{{ url_for('create_lost_and_found', condo_id=current_user.condo_id) }}" class="btn btn-primary mt-4">Adicionar Item</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+    @media (max-width: 768px) {
+        .card {
+            margin-bottom: 20px;
+        }
+        .card-body {
+            padding: 10px;
+        }
+        .card-title {
+            font-size: 1.2em;
+        }
+        .card-text {
+            font-size: 0.9em;
+        }
+    }
+</style>
+{% endblock %}

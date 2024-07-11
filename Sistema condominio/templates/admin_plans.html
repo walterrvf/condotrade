@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Gerenciar Planos de Anúncio</h1>
+    <form method="POST" action="{{ url_for('manage_plans') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.name.label(class="form-control-label") }}
+            {{ form.name(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.price.label(class="form-control-label") }}
+            {{ form.price(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.description.label(class="form-control-label") }}
+            {{ form.description(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+
+    <h2>Planos Existentes</h2>
+    <ul class="list-group">
+        {% for plan in plans %}
+        <li class="list-group-item">
+            <form method="POST" action="{{ url_for('update_plan', plan_id=plan.id) }}">
+                <div class="form-row">
+                    <div class="col">
+                        <input type="text" class="form-control" name="name" value="{{ plan.name }}">
+                    </div>
+                    <div class="col">
+                        <input type="number" class="form-control" name="price" value="{{ plan.price }}">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" name="description" value="{{ plan.description }}">
+                    </div>
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                    <div class="col">
+                        <a href="{{ url_for('delete_plan', plan_id=plan.id) }}" class="btn btn-danger">Deletar</a>
+                    </div>
+                </div>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

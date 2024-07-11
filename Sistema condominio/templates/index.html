@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Classificados</h1>
+    <div class="row">
+        {% for ad in ads %}
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+            <div class="card shadow-sm {% if ad.plan.name == 'Diamond' %}border-diamond{% elif ad.plan.name == 'Gold' %}border-gold{% elif ad.plan.name == 'Silver' %}border-silver{% elif ad.plan.name == 'Bronze' %}border-bronze{% else %}border-free{% endif %}">
+                {% if ad.photos and ad.photos|length > 0 %}
+                <img src="{{ url_for('static', filename='uploads/' ~ ad.photos[0].filename) }}" class="card-img-top" alt="Ad image">
+                {% else %}
+                <img src="{{ url_for('static', filename='uploads/default.jpg') }}" class="card-img-top" alt="No image available">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ ad.title }}</h5>
+                    <p class="card-text">{{ ad.description[:100] }}...</p>
+                    <p class="card-text"><strong>R$ {{ ad.price }}</strong></p>
+                    <a href="{{ url_for('view_ad', ad_id=ad.id) }}" class="btn btn-primary btn-block">Ver mais</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+ <!--<h1 class="text-center mt-4">Serviços</h1>
+    <div class="row">
+        {% for service in services %}
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+            <div class="card shadow-sm {% if service.plan.name == 'Diamond' %}border-diamond{% elif service.plan.name == 'Gold' %}border-gold{% elif service.plan.name == 'Silver' %}border-silver{% elif service.plan.name == 'Bronze' %}border-bronze{% else %}border-free{% endif %}">
+                {% if service.photos and service.photos|length > 0 %}
+                <img src="{{ url_for('static', filename='uploads/' ~ service.photos[0].filename) }}" class="card-img-top" alt="Service image">
+                {% else %}
+                <img src="{{ url_for('static', filename='uploads/default.jpg') }}" class="card-img-top" alt="No image available">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ service.title }}</h5>
+                    <p class="card-text">{{ service.description[:100] }}...</p>
+                    <p class="card-text"><strong>R$ {{ service.price }}</strong></p>
+                    <a href="{{ url_for('view_service', service_id=service.id) }}" class="btn btn-primary btn-block">Ver mais</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+-->
+{% endblock %}
+
+
+{% block styles %}
+<style>
+    .border-diamond {
+        border: 2px solid #007bff; /* Azul para Diamond */
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    .border-gold {
+        border: 2px solid #ffc107; /* Dourado para Gold */
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    .border-silver {
+        border: 2px solid #6c757d; /* Cinza para Silver */
+        background-color: rgba(108, 117, 125, 0.1);
+    }
+
+    .border-bronze {
+        border: 2px solid #8b4513; /* Marrom para Bronze */
+        background-color: rgba(139, 69, 19, 0.1);
+    }
+
+    .border-free {
+        border: 2px solid #f8f9fa; /* Claro para Free */
+        background-color: rgba(248, 249, 250, 0.1);
+    }
+    
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .card-title {
+        font-size: 1.25em;
+        font-weight: bold;
+    }
+
+    .btn-block {
+        width: 100%;
+    }
+
+    @media (max-width: 576px) {
+        .card-img-top {
+            height: 150px;
+        }
+
+        .card-title {
+            font-size: 1em;
+        }
+
+        .card-text {
+            font-size: 0.9em;
+        }
+    }
+</style>
+{% endblock %}

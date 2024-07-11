@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Chat</h1>
+    <div class="chat-container">
+        <div id="chat-box" class="chat-box">
+            <!-- Mensagens serão carregadas aqui -->
+        </div>
+        <div class="message-form-container">
+            <form id="message-form" class="message-form">
+                {{ form.hidden_tag() }}
+                <textarea id="content" name="content" rows="1" class="form-control" placeholder="Digite sua mensagem..."></textarea>
+                <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 500px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .chat-box {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+    }
+
+    .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 60%;
+        word-wrap: break-word;
+        clear: both;
+    }
+
+    .message.sent {
+        background-color: #e0f7fa;
+        float: right;
+        text-align: right;
+    }
+
+    .message.received {
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        float: left;
+        text-align: left;
+    }
+
+    .message-form-container {
+        padding: 10px;
+        background-color: #fff;
+        border-top: 1px solid #ccc;
+    }
+
+    .message-form {
+        display: flex;
+    }
+
+    .message-form textarea {
+        flex: 1;
+        resize: none;
+    }
+
+    .message-form button {
+        margin-left: 10px;
+    }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var chatBox = document.getElementById("chat-box");
+    var messageForm = document.getElementById("message-form");
+    var contentInput = document.getElementById("content");
+
+    // Função para carregar mensagens
+    function loadMessages() {
+        fetch('{{ url_for("get_messages", conversation_id=conversation.id) }}')
+            .then(response => response.json())
+            .then(data => {
+                chatBox.innerHTML = "";
+                data.forEach(message => {
+                    var msgDiv = document.createElement("div");
+                    msgDiv.classList.add("message");
+                    if (message.sender === '{{ current_user.username }}') {
+                        msgDiv.classList.add("sent");
+                    } else {
+                        msgDiv.classList.add("received");
+                    }
+                    
+                    // Ajustar horário para GMT-3
+                    var localTime = new Date(message.timestamp);
+                    localTime.setHours(localTime.getHours() - 3);
+
+                    msgDiv.innerHTML = "<strong>" + message.sender + ":</strong> " + message.content + "<br><small>" + localTime.toLocaleString() + "</small>";
+                    chatBox.appendChild(msgDiv);
+                });
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+    }
+
+    // Carregar mensagens inicialmente
+    loadMessages();
+
+    // Polling para carregar mensagens a cada 5 segundos
+    setInterval(loadMessages, 5000);
+
+    // Enviar mensagem
+    messageForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+        var formData = new FormData(messageForm);
+        fetch('{{ url_for("send_message", conversation_id=conversation.id) }}', {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                contentInput.value = "";
+                loadMessages();
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

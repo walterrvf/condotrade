@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <style>
+        .ad-image-container {
+            position: relative;
+            height: 500px;  /* Defina a altura fixa que você deseja */
+            width: 100%;  /* Defina a largura fixa */
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f9fa;  /* Cor de fundo para o espaço extra */
+        }
+        .ad-image {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;  /* Ajusta a imagem sem cortar */
+            z-index: 2;
+        }
+        .ad-image-blur {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            filter: blur(20px);
+            z-index: 1;
+        }
+        .ad-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dc3545;  /* Cor vermelha para destacar */
+        }
+        .ad-description {
+            font-size: 1.2rem;
+            color: #343a40;  /* Cor escura para descrição */
+            margin-top: 10px;
+        }
+    </style>
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">{{ ad.title }}</h5>
+        </div>
+        <div class="card-body">
+            <div id="adCarousel" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    {% for photo in ad.photos %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <div class="ad-image-container">
+                            <img src="{{ url_for('static', filename='uploads/' ~ photo.filename) }}" class="ad-image" alt="Ad image">
+                            <img src="{{ url_for('static', filename='uploads/' ~ photo.filename) }}" class="ad-image-blur" alt="Ad image">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <a class="carousel-control-prev" href="#adCarousel" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#adCarousel" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+            <p class="card-text ad-price">Preço: R$ {{ ad.price }}</p>
+            <p class="card-text ad-description">{{ ad.description }}</p>
+            <p class="card-text"><strong>Anunciante:</strong> {{ ad.user.username }}</p>
+            <p class="card-text"><strong>Visualizações:</strong> {{ ad.views }}</p>
+            <a href="{{ url_for('conversation', ad_id=ad.id, buyer_id=current_user.id) }}" class="btn btn-primary">Chat com o Vendedor</a>
+            <a href="{{ url_for('index', condo_id=ad.condo_id) }}" class="btn btn-secondary">Voltar</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
